@@ -4,6 +4,12 @@
 #include <ESP8266WebServer.h>
 #include <Hash.h>
 
+#define BIA D2
+#define BIB D3
+#define AIA D6
+#define AIB D7
+
+
 
 
 #define LED_PIN LED_BUILTIN
@@ -71,6 +77,32 @@ void setup() {
 
   setupWSServer();
   setupWebServer();
+}
+
+void moveMotor(int motor, int speed) {
+  int low, pwm;
+  if (motor) {
+    low = AIA;
+    pwm = AIB;
+  }
+  else {
+    low = BIA;
+    pwm = BIB;
+  }
+  if (speed < 0) {
+    int tmp = low;
+    low = pwm;
+    pwm = tmp;
+    speed = - speed;
+  }
+
+
+  int vel = map(0, 100, 0, 1023, speed);
+  if (vel < 600) vel = 600;
+  Serial.print(vel);
+  analogWrite(low, 0);
+  analogWrite(pwm, vel);
+
 }
 
 void loop() {
