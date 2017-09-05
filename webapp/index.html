@@ -1,16 +1,16 @@
-<head><meta name="viewport"content="width=device-width,initial-scale=1"></head>
+<head><meta name='viewport'content='width=device-width,initial-scale=1'></head>
 <style>body {width:100%;height:100%;margin:0px;}</style>
-<canvas id="c"/>
+<canvas id='c'/>
 <script>
-const BACKGROUND = "#E3F2FD"
-const OUTER_CIRCLE = "#7986CB"
-const INNER_CIRCLE = "#3F51B5"
-const PRESSED_CIRCLE = "#303F9F"
+const BACKGROUND = '#E3F2FD'
+const OUTER_CIRCLE = '#7986CB'
+const INNER_CIRCLE = '#3F51B5'
+const PRESSED_CIRCLE = '#303F9F'
 const CIRCLE_SIZE = 0.7
 const SEND_INTERVAL = 300
 
-var canvas = document.getElementById("c")
-var ctx = canvas.getContext("2d")
+var canvas = document.getElementById('c')
+var ctx = canvas.getContext('2d')
 
 var mouseX = 0
 var mouseY = 0
@@ -41,7 +41,6 @@ function init() {
 
 
 function onresize() {
-  console.log("hey")
   canvas.width = window.innerWidth
   canvas.height = window.innerHeight
   width = canvas.width
@@ -55,13 +54,13 @@ function mousedown(ev) {
   mouseDown = true
   if (ev.changedTouches != undefined)
     ev.preventDefault()
-  console.log("mousedown", ev)
+  console.log('mousedown', ev)
   mousemove(ev)
 }
 
 function mousemove(ev) {
   if (!mouseDown) return
-  console.log("mousemove", ev)
+  console.log('mousemove', ev)
 
   if (ev.changedTouches != undefined)
     ev.preventDefault()
@@ -73,11 +72,11 @@ function mousemove(ev) {
     mouseX = ev.x
     mouseY = ev.y
   }
-  console.log("mousemove", ev)
+  console.log('mousemove', ev)
 }
 
 function mouseup(ev) {
-  console.log("mouseup")
+  console.log('mouseup')
   if (ev.changedTouches != undefined)
     ev.preventDefault()
   mouseDown = false
