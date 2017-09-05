@@ -8,7 +8,7 @@ const INNER_CIRCLE = '#3F51B5'
 const PRESSED_CIRCLE = '#303F9F'
 const CONNECTING_COLOR = '#AAAAAA'
 const CIRCLE_SIZE = 0.7
-const SEND_INTERVAL = 300
+const SEND_INTERVAL = 100
 const ENDPOINT = "ws://192.168.4.1:81/"
 
 var canvas = document.getElementById('c')
@@ -22,6 +22,7 @@ var joyX = 0
 var joyY = 0
 var cx = 0
 var cy = 0
+var radius = 0;
 var mouseDown = false
 var lastSendTime = 0
 var conn;
@@ -115,18 +116,22 @@ function process() {
 function sendToServer() {
   var time = new Date().getTime()
   if (time - lastSendTime < SEND_INTERVAL) return
-
-  // TODO send to the webserver
-
   lastSendTime = time
+
+  var x = joyX - width/2;
+  var y = joyY - height/2;
+  x = Math.floor(x * 100 / radius);
+  y = Math.floor(y * 100 / radius);
+
+  if (connected) conn.send(x + " " + y)
 }
 
 function processJoystick() {
-  var r = Math.min(width, height) /2*CIRCLE_SIZE
+  radius = Math.min(width, height) /2*CIRCLE_SIZE
   var currDst = dst(mouseX, mouseY, cx, cy)
-  if (currDst > r) {
-    joyX = (mouseX-width/2) * (r/currDst) + width/2
-    joyY = (mouseY-height/2) * (r/currDst) + height/2
+  if (currDst > radius) {
+    joyX = (mouseX-width/2) * (radius/currDst) + width/2
+    joyY = (mouseY-height/2) * (radius/currDst) + height/2
   } else {
     joyX = mouseX
     joyY = mouseY
