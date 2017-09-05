@@ -6,8 +6,10 @@ const BACKGROUND = '#E3F2FD'
 const OUTER_CIRCLE = '#7986CB'
 const INNER_CIRCLE = '#3F51B5'
 const PRESSED_CIRCLE = '#303F9F'
+const CONNECTING_COLOR = '#AAAAAA'
 const CIRCLE_SIZE = 0.7
 const SEND_INTERVAL = 300
+const ENDPOINT = "ws://192.168.4.1:81/"
 
 var canvas = document.getElementById('c')
 var ctx = canvas.getContext('2d')
@@ -22,6 +24,8 @@ var cx = 0
 var cy = 0
 var mouseDown = false
 var lastSendTime = 0
+var conn;
+var connected = false
 
 init()
 
@@ -36,9 +40,31 @@ function init() {
   window.addEventListener('resize', onresize)
   onresize()
 
+  conn = new WebSocket(ENDPOINT)
+  conn.onopen = onopen
+  conn.onerror = onerror
+  conn.onmessage = onmessage
   process()
 }
 
+function onopen() {
+  console.log("Connected to", ENDPOINT)
+  connected = true
+  conn.send("Hello from Client")
+}
+function onmessage(e) {
+  console.log("MSG: ", e.data)
+}
+
+function onerror(e) {
+  connected = false
+  console.log("ERR", e)
+}
+function onclose(e) {
+  connected = false
+  console.log("Close", e)
+
+}
 
 function onresize() {
   canvas.width = window.innerWidth
@@ -127,8 +153,9 @@ function draw() {
   ctx.lineTo(width-1, height/2)
   ctx.stroke()
 
+  var inner = connected ? INNER_CIRCLE : CONNECTING_COLOR
   drawCircle(CIRCLE_SIZE, cx, cy, OUTER_CIRCLE, false)
-  drawCircle(0.3, joyX, joyY, INNER_CIRCLE, true)
+  drawCircle(0.3, joyX, joyY, inner, true)
 }
 
 function drawCircle(radf, x, y, color, fill) {
