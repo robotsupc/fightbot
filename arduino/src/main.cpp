@@ -127,6 +127,18 @@ void setup() {
   setupWebServer();
 }
 
+void pene(int x, int y)
+{
+  if(y <= 0)
+  {
+    moveMotor(MOTOR_A, 0);
+    moveMotor(MOTOR_B, 0);
+    return;
+  }
+  moveMotor(MOTOR_A, y+x);
+  moveMotor(MOTOR_B, y-x);
+  return;
+}
 void moveMotor(int motor, int speed) {
   int low, pwm;
   if (motor) {
