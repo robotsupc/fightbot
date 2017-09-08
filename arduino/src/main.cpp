@@ -9,6 +9,9 @@
 #define AIA D6
 #define AIB D7
 
+#define MOTOR_A 0
+#define MOTOR_B 1
+
 
 
 
@@ -21,6 +24,11 @@
 ESP8266WebServer server = ESP8266WebServer(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
 
+void moveMotor(int motor, int speed);
+
+
+
+
 void blink(int t, int reps) {
   for (int i = 0; i < reps; i++) {
     digitalWrite(LED_PIN, HIGH);
@@ -28,6 +36,23 @@ void blink(int t, int reps) {
     digitalWrite(LED_PIN, LOW);
     delay(t);
   }
+}
+
+// https://stackoverflow.com/questions/29671455/how-to-split-a-string-using-a-specific-delimiter-in-arduino
+String substr(String data, char separator, int index){
+  int found = 0;
+  int strIndex[] = {0, -1};
+  int maxIndex = data.length()-1;
+
+  for(int i=0; i<=maxIndex && found<=index; i++){
+    if(data.charAt(i)==separator || i==maxIndex){
+        found++;
+        strIndex[0] = strIndex[1]+1;
+        strIndex[1] = (i == maxIndex) ? i+1 : i;
+    }
+  }
+
+  return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
@@ -44,11 +69,29 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
         break;
     }
     case WStype_TEXT:
-        Serial.printf("MSG: %s\n", payload);
+        //Serial.printf("MSG: %s\n", payload);
+        String s = (char*) payload;
+        int x = substr(s, ' ', 0).toInt();
+        int y = substr(s, ' ', 1).toInt();
+        //Serial.print("Converted: ");
+        //Serial.print(x);
+        //Serial.print(" ");
+        //Serial.println(y);
+
+        if (x < -50) {
+          moveMotor(MOTOR_A, 100);
+        } else if (x > 50) {
+          moveMotor(MOTOR_B, 100);
+        } else {
+          moveMotor(MOTOR_A, 0);
+          moveMotor(MOTOR_B, 0);
+        }
         break;
     }
 
 }
+
+
 
 void setupWebServer() {
   server.on("/", []() {
@@ -65,6 +108,11 @@ void setupWSServer() {
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
+  pinMode(AIA, OUTPUT);
+  pinMode(AIB, OUTPUT);
+  pinMode(BIA, OUTPUT);
+  pinMode(BIB, OUTPUT);
+
   blink(30, 10);
 
   Serial.begin(115200);
@@ -93,16 +141,16 @@ void moveMotor(int motor, int speed) {
     int tmp = low;
     low = pwm;
     pwm = tmp;
-    speed = - speed;
+    speed = -speed;
   }
 
 
   int vel = map(0, 100, 0, 1023, speed);
-  if (vel < 600) vel = 600;
-  Serial.print(vel);
+
+  //Serial.print("VEL: ");
+  //Serial.println(vel);
   analogWrite(low, 0);
   analogWrite(pwm, vel);
-
 }
 
 void loop() {
