@@ -4,10 +4,10 @@
 #include <ESP8266WebServer.h>
 #include <Hash.h>
 
-#define BIA D2
-#define BIB D3
-#define AIA D6
-#define AIB D7
+#define BIA D1
+#define BIB D2
+#define AIA D3
+#define AIB D4
 
 #define MOTOR_A 0
 #define MOTOR_B 1
@@ -37,6 +37,8 @@ void blink(int t, int reps) {
     delay(t);
   }
 }
+
+void pene (int x, int y);
 
 // https://stackoverflow.com/questions/29671455/how-to-split-a-string-using-a-specific-delimiter-in-arduino
 String substr(String data, char separator, int index){
@@ -73,19 +75,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
         String s = (char*) payload;
         int x = substr(s, ' ', 0).toInt();
         int y = substr(s, ' ', 1).toInt();
-        //Serial.print("Converted: ");
-        //Serial.print(x);
-        //Serial.print(" ");
-        //Serial.println(y);
-
-        if (x < -50) {
-          moveMotor(MOTOR_A, 100);
-        } else if (x > 50) {
-          moveMotor(MOTOR_B, 100);
-        } else {
-          moveMotor(MOTOR_A, 0);
-          moveMotor(MOTOR_B, 0);
-        }
+        pene(x,y);
         break;
     }
 
@@ -112,10 +102,15 @@ void setup() {
   pinMode(AIB, OUTPUT);
   pinMode(BIA, OUTPUT);
   pinMode(BIB, OUTPUT);
+  //digitalWrite(AIA, HIGH);
+  //digitalWrite(AIB, LOW);
+
 
   blink(30, 10);
 
   Serial.begin(115200);
+  Serial.println();
+  Serial.println();
   Serial.println();
 
   Serial.print("Setting up WiFi soft-AP ... ");
@@ -125,29 +120,92 @@ void setup() {
 
   setupWSServer();
   setupWebServer();
+
+//  moveMotor(MOTOR_A, 100);
+//  moveMotor(MOTOR_B, -100);
+}
+
+//formula distancia en plano cartesiano, siempre comparamos con el origen(0,0)
+int distancefromCenter(int x, int y) {
+  return sqrt((x*x)+(y*y));
 }
 
 void pene(int x, int y)
 {
-  if(y <= 0)
-  {
-    moveMotor(MOTOR_A, 0);
-    moveMotor(MOTOR_B, 0);
-    return;
-  }
-  moveMotor(MOTOR_A, y+x);
-  moveMotor(MOTOR_B, y-x);
-  return;
+//http://www.impulseadventure.com/elec/robot-differential-steering.html
+// Differential Steering Joystick Algorithm
+// Converts a single dual-axis joystick into a differential
+// drive motor control, with support for both drive, turn
+// and pivot operations.
+//
+
+// INPUTS
+int     nJoyX = x;              // Joystick X input                     (-128..+127)
+int     nJoyY = y;              // Joystick Y input                     (-128..+127)
+
+// OUTPUTS
+int     nMotMixL;           // Motor (left)  mixed output           (-128..+127)
+int     nMotMixR;           // Motor (right) mixed output           (-128..+127)
+
+// CONFIG
+// - fPivYLimt  : The threshold at which the pivot action starts
+//                This threshold is measured in units on the Y-axis
+//                away from the X-axis (Y=0). A greater value will assign
+//                more of the joystick's range to pivot actions.
+//                Allowable range: (0..+127)
+float fPivYLimit = 32.0;
+
+// TEMP VARIABLES
+float   nMotPremixL;    // Motor (left)  premixed output        (-128..+127)
+float   nMotPremixR;    // Motor (right) premixed output        (-128..+127)
+int     nPivSpeed;      // Pivot Speed                          (-128..+127)
+float   fPivScale;      // Balance scale b/w drive and pivot    (   0..1   )
+
+
+// Calculate Drive Turn output due to Joystick X input
+if (nJoyY >= 0) {
+  // Forward
+  nMotPremixL = (nJoyX>=0)? 99.0 : (99.0 + nJoyX);
+  nMotPremixR = (nJoyX>=0)? (99.0 - nJoyX) : 99.0;
+} else {
+  // Reverse
+  nMotPremixL = (nJoyX>=0)? (99.0 - nJoyX) : 99.0;
+  nMotPremixR = (nJoyX>=0)? 99.0 : (99.0 + nJoyX);
 }
+
+//  A PARTIR DE AQUI SE PUEDEN ELIMINAR COSAS, NO SON TAMPOCO LAS ENTIENDO
+//  AL 100%
+// Scale Drive output due to Joystick Y input (throttle)
+nMotPremixL = nMotPremixL * nJoyY/100.0;
+nMotPremixR = nMotPremixR * nJoyY/100.0;
+
+// Now calculate pivot amount
+// - Strength of pivot (nPivSpeed) based on Joystick X input
+// - Blending of pivot vs drive (fPivScale) based on Joystick Y input
+nPivSpeed = nJoyX;
+fPivScale = (abs(nJoyY)>fPivYLimit)? 0.0 : (1.0 - abs(nJoyY)/fPivYLimit);
+
+// Calculate final mix of Drive and Pivot
+nMotMixL = (1.0-fPivScale)*nMotPremixL + fPivScale*( nPivSpeed);
+nMotMixR = (1.0-fPivScale)*nMotPremixR + fPivScale*(-nPivSpeed);
+
+// Convert to Motor PWM range
+moveMotor(MOTOR_B, nMotMixR);
+moveMotor(MOTOR_A, nMotMixL);
+
+}
+
 void moveMotor(int motor, int speed) {
+  //EL IA y el IB estan asignados de esta manera para que concuerde la
+  //direccion con  rueda de atras y
   int low, pwm;
   if (motor) {
-    low = AIA;
-    pwm = AIB;
+    low = AIB;
+    pwm = AIA;
   }
   else {
-    low = BIA;
-    pwm = BIB;
+    low = BIB;
+    pwm = BIA;
   }
   if (speed < 0) {
     int tmp = low;
@@ -157,10 +215,13 @@ void moveMotor(int motor, int speed) {
   }
 
 
-  int vel = map(0, 100, 0, 1023, speed);
+  int vel = map(speed, 0, 100, 0, 1023);
 
-  //Serial.print("VEL: ");
-  //Serial.println(vel);
+  Serial.print("VEL: ");
+  Serial.println(vel);
+
+  //digitalWrite(low, LOW);
+  //digitalWrite(pwm, HIGH);
   analogWrite(low, 0);
   analogWrite(pwm, vel);
 }
