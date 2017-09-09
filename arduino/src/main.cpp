@@ -102,9 +102,6 @@ void setup() {
   pinMode(AIB, OUTPUT);
   pinMode(BIA, OUTPUT);
   pinMode(BIB, OUTPUT);
-  //digitalWrite(AIA, HIGH);
-  //digitalWrite(AIB, LOW);
-
 
   blink(30, 10);
 
@@ -120,9 +117,6 @@ void setup() {
 
   setupWSServer();
   setupWebServer();
-
-//  moveMotor(MOTOR_A, 100);
-//  moveMotor(MOTOR_B, -100);
 }
 
 //formula distancia en plano cartesiano, siempre comparamos con el origen(0,0)
@@ -130,74 +124,44 @@ int distancefromCenter(int x, int y) {
   return sqrt((x*x)+(y*y));
 }
 
+//el robot nunca va marcha atras. velocidad siempre positva
 void pene(int x, int y)
 {
+  //check distancia al centro, se puede tambien haer con la funcion
+  //distancefromCenter(x,y) pero not worth
+  if (x < 50 and x > -50 and y > -50 and y < 50 ) {
+    moveMotor(MOTOR_A , 0);
+    moveMotor(MOTOR_B , 0);
+    //Serial.printf("0");
+    return;
+  }
+  int vel_a = 0;
+  int vel_b = 0;
+  if (y >= 0) {
+    vel_a = (x >= 0)? 100 : (100 + x);
+    vel_b = (x >= 0)? (100- x) : 100;
+  }
+  else {
+    vel_a = (x >= 0) ? (100 - x) : 100;
+    vel_b = (x >= 0) ? 100 : (100 + x);
+  }
+
+  vel_a = map (vel_a, 0, 100, 50, 100);
+  vel_b = map (vel_b, 0, 100, 50, 100);
+
+  moveMotor(MOTOR_B, vel_b);
+  moveMotor(MOTOR_A, vel_a);
+
+  //Serial.printf("%d %d\n",vel_a,vel_b);
 //http://www.impulseadventure.com/elec/robot-differential-steering.html
-// Differential Steering Joystick Algorithm
-// Converts a single dual-axis joystick into a differential
-// drive motor control, with support for both drive, turn
-// and pivot operations.
-//
-
-// INPUTS
-int     nJoyX = x;              // Joystick X input                     (-128..+127)
-int     nJoyY = y;              // Joystick Y input                     (-128..+127)
-
-// OUTPUTS
-int     nMotMixL;           // Motor (left)  mixed output           (-128..+127)
-int     nMotMixR;           // Motor (right) mixed output           (-128..+127)
-
-// CONFIG
-// - fPivYLimt  : The threshold at which the pivot action starts
-//                This threshold is measured in units on the Y-axis
-//                away from the X-axis (Y=0). A greater value will assign
-//                more of the joystick's range to pivot actions.
-//                Allowable range: (0..+127)
-float fPivYLimit = 32.0;
-
-// TEMP VARIABLES
-float   nMotPremixL;    // Motor (left)  premixed output        (-128..+127)
-float   nMotPremixR;    // Motor (right) premixed output        (-128..+127)
-int     nPivSpeed;      // Pivot Speed                          (-128..+127)
-float   fPivScale;      // Balance scale b/w drive and pivot    (   0..1   )
-
-
-// Calculate Drive Turn output due to Joystick X input
-if (nJoyY >= 0) {
-  // Forward
-  nMotPremixL = (nJoyX>=0)? 99.0 : (99.0 + nJoyX);
-  nMotPremixR = (nJoyX>=0)? (99.0 - nJoyX) : 99.0;
-} else {
-  // Reverse
-  nMotPremixL = (nJoyX>=0)? (99.0 - nJoyX) : 99.0;
-  nMotPremixR = (nJoyX>=0)? 99.0 : (99.0 + nJoyX);
-}
-
-//  A PARTIR DE AQUI SE PUEDEN ELIMINAR COSAS, NO SON TAMPOCO LAS ENTIENDO
-//  AL 100%
-// Scale Drive output due to Joystick Y input (throttle)
-nMotPremixL = nMotPremixL * nJoyY/100.0;
-nMotPremixR = nMotPremixR * nJoyY/100.0;
-
-// Now calculate pivot amount
-// - Strength of pivot (nPivSpeed) based on Joystick X input
-// - Blending of pivot vs drive (fPivScale) based on Joystick Y input
-nPivSpeed = nJoyX;
-fPivScale = (abs(nJoyY)>fPivYLimit)? 0.0 : (1.0 - abs(nJoyY)/fPivYLimit);
-
-// Calculate final mix of Drive and Pivot
-nMotMixL = (1.0-fPivScale)*nMotPremixL + fPivScale*( nPivSpeed);
-nMotMixR = (1.0-fPivScale)*nMotPremixR + fPivScale*(-nPivSpeed);
-
-// Convert to Motor PWM range
-moveMotor(MOTOR_B, nMotMixR);
-moveMotor(MOTOR_A, nMotMixL);
 
 }
 
 void moveMotor(int motor, int speed) {
   //EL IA y el IB estan asignados de esta manera para que concuerde la
-  //direccion con  rueda de atras y
+  //direccion con  rueda de atras y puede variar depende como este montado
+  //es mas facil cambiar los 4 cables del driver que empezar a trastear el
+  //codigo
   int low, pwm;
   if (motor) {
     low = AIB;
