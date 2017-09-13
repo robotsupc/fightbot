@@ -1,8 +1,8 @@
 screw_dst = 17.5;
 
 module base() {
-    th = 2;
-    pad = 0.3;
+    th = 2-.6;
+    pad = 0.6;
     thcube = [1,1,1]*(th+pad);
     size = [26,2.1,6];
     
@@ -17,7 +17,7 @@ module base() {
         cube(size+[0,0,10]);
         
         translate([0,0,screw_h]+screw_pos) {
-            h=2.5;
+            h=8;
             cylinder(r=4, h=h, $fn=30);
             translate([screw_dst,0,0]) cylinder(r=4, h=h, $fn=30);
         }
