@@ -1,10 +1,10 @@
-size = [19,12,12];
-th = 5;
+size = [20,12,2];
+th = 3;
 screw_dst = 17.5/2;
 screw_r = 3.5;
 mount_th = 3;
 
-mount_offset = [16,11];
+mount_offset = [17,8];
 
 total_w = th*2+size[0];
 
@@ -36,7 +36,7 @@ module removeinner() {
     }
 }
 module switch() {
-        cube(size+[2,2,1]*th);
+        cube(size+[2,1,1]*th);
 }
 
 module mount() {
