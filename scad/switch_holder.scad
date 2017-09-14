@@ -1,4 +1,4 @@
-size = [20,12,2];
+size = [19,12,2];
 th = 3;
 screw_dst = 17.5/2;
 screw_r = 3.5;
@@ -19,7 +19,7 @@ module removeinner() {
         cube(size+[0,th+.1,300]);   
    
         // negative y axis
-        translate([0,-100,0])
+        translate([0,-100,-3])
         cube([100,100,100]);
         
         // screws and bolts
