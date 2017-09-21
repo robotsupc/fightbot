@@ -20,7 +20,7 @@ Fully assembled:
 
 Without electronics:
 
-<img src="https://user-images.githubusercontent.com/4309591/30709605-212f2662-9f03-11e7-846e-f815f56a9a32.jpg" width="400">
+<img src="https://user-images.githubusercontent.com/4309591/30709587-138ea7a8-9f03-11e7-9b0b-dded8068c44b.jpg" width="400">
 
 Programming the robot:
 
