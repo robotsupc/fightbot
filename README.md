@@ -2,7 +2,7 @@
 
 Fightbot is a 3D printed Mario Kart clone for less than 10$
 
-Built by [Robots UPC](www.robotsupc.com), the UPC's Robotics student association.
+Built by [Robots UPC](http://www.robotsupc.com), the UPC's Robotics student association.
 
 
 # How it works
