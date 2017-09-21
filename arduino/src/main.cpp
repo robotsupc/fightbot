@@ -5,7 +5,7 @@
 #include <DNSServer.h>
 
 #include <Hash.h>
-#include <robot1.h>
+#include <robot3.h>
 
 
 #define MOTOR_MIN_SPEED 768
@@ -132,7 +132,7 @@ void setup() {
   Serial.println();
 
   Serial.print("Setting up WiFi soft-AP ... ");
-  boolean result = WiFi.softAP(SSID, PASS);
+  bool result = WiFi.softAP(SSID, PASS, CHAN, 0);
   if(result == true) Serial.println("Ready");
   else Serial.println("Failed!");
 
