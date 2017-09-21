@@ -4,6 +4,11 @@ Fightbot is a 3D printed Mario Kart clone for less than 10$
 
 Built by [Robots UPC](http://www.robotsupc.com), the UPC's Robotics student association.
 
+[
+![RobotsUPC Fightbot](https://user-images.githubusercontent.com/4309591/30709458-8d69d27e-9f02-11e7-93b9-6cad5980506c.gif)
+](https://youtu.be/2lzYGl3RAvY)
+
+[Click here to watch the short clip](https://youtu.be/2lzYGl3RAvY)
 
 # How it works
 To communicate to the arduino, it sets up an AP, called "RobotsUPC Fightbot X", where X is {1,2,3,4}.
