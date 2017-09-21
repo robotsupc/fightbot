@@ -10,6 +10,27 @@ Built by [Robots UPC](http://www.robotsupc.com), the UPC's Robotics student asso
 
 [Click here to watch the short clip](https://youtu.be/2lzYGl3RAvY)
 
+
+
+### How it looks
+
+Fully assembled:
+
+<img src="https://user-images.githubusercontent.com/4309591/30709662-49283e4c-9f03-11e7-8050-219ba863531a.jpg" width="400">
+
+Without electronics:
+
+<img src="https://user-images.githubusercontent.com/4309591/30709605-212f2662-9f03-11e7-846e-f815f56a9a32.jpg" width="400">
+
+Programming the robot:
+
+<img src="https://user-images.githubusercontent.com/4309591/30709605-212f2662-9f03-11e7-846e-f815f56a9a32.jpg" width="400">
+
+From the back:
+
+<img src="https://user-images.githubusercontent.com/4309591/30709706-67575b14-9f03-11e7-9373-64c64195442e.jpg" width="400">
+
+
 # How it works
 To communicate to the arduino, it sets up an AP, called "RobotsUPC Fightbot X", where X is {1,2,3,4}.
 When a client connects, we use a captive portal like setup, which will capture any URL and redirect it to the arduino itself.
